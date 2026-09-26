@@ -1,0 +1,38 @@
+{
+  "name": "moveborn-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Moveborn: turn one character image into game-ready sprite animations (walk, run, idle, attack, skill, hit, death) from Claude Code, Codex, Cursor and other AI coding agents.",
+  "type": "module",
+  "bin": {
+    "moveborn-mcp": "index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.1",
+    "zod": "^3.25.0"
+  },
+  "keywords": [
+    "mcp",
+    "sprite",
+    "sprite-sheet",
+    "game-dev",
+    "unity",
+    "godot",
+    "animation",
+    "claude-code",
+    "codex"
+  ],
+  "homepage": "https://moveborn.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bmcool/moveborn-mcp.git"
+  }
+}
