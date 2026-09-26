@@ -40,7 +40,9 @@ async function call(method, path, { body, form, raw = false } = {}) {
     return res;
   }
   const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
+  let data = {};
+  try { data = text ? JSON.parse(text) : {}; } catch { data = { error: text.slice(0, 200) }; }
+  if (res.status === 401) throw new ApiError(401, { error: `API key is invalid or revoked (${data.error || "401"}). Create a new one at ${SITE}/app/ (top right: API 金鑰).` });
   if (!res.ok) throw new ApiError(res.status, data);
   return data;
 }
