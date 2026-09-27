@@ -1,6 +1,6 @@
 {
   "name": "moveborn-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server for Moveborn: turn one character image into game-ready sprite animations (walk, run, idle, attack, skill, hit, death) from Claude Code, Codex, Cursor and other AI coding agents.",
   "type": "module",
   "bin": {
@@ -8,6 +8,7 @@
   },
   "files": [
     "index.js",
+    "engines.js",
     "README.md",
     "LICENSE"
   ],

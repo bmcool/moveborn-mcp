@@ -78,6 +78,29 @@ The agent will create the jobs, wait for them (about 3–5 minutes per action) a
 Use `ground_y` as the sprite origin so every action stands on the same line. Side-facing sprites face right;
 flip horizontally for left.
 
+## Engine files (automatic)
+
+`download_results` looks at where you download to:
+
+- **Godot 4** (a `project.godot` above the folder): writes `<folder>/<folder>.tres` — a `SpriteFrames` with every
+  action in the folder (loops and fps set) — and `moveborn_sprite.gd`, a tiny `AnimatedSprite2D` script that keeps
+  the feet on the node origin when switching between actions of different cell sizes.
+- **Unity** (`Assets/` + `ProjectSettings/` above the folder; the folder must be under `Assets/`): installs
+  `Assets/Editor/MovebornImporter.cs`. On import it turns the frames into Sprites with the pivot on the feet and
+  builds one `.anim` per action (idle/walk/run looping) plus a `<Folder>.controller`. The Unity importer is new —
+  please open an issue if something is off.
+
+Download every action of one character into the same folder so they share one SpriteFrames / controller.
+Pass `engine_files: false` to skip this.
+
+## Skill (optional)
+
+`skills/moveborn/SKILL.md` teaches the agent when to use Moveborn, how to pick actions, to confirm the credit
+cost with you before generating, and how to wire the result into Godot / Unity. Copy the folder to:
+
+- Claude Code: `~/.claude/skills/moveborn/` (or `.claude/skills/moveborn/` in a project)
+- Codex: `~/.codex/skills/moveborn/`
+
 Trial accounts can only download the watermarked preview; top up any pack to unlock clean frames.
 
 ## Environment

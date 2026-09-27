@@ -12,11 +12,12 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, dirname, extname, join, resolve } from "node:path";
+import { writeEngineFiles } from "./engines.js";
 
 const API = (process.env.MOVEBORN_API || "https://moveborn.com/api").replace(/\/$/, "");
 const KEY = process.env.MOVEBORN_API_KEY || "";
 const SITE = API.replace(/\/api$/, "");
-const UA = "moveborn-mcp/0.1";
+const UA = "moveborn-mcp/0.2";
 
 const BASE = ["idle", "walk", "run", "attack", "skill", "hit", "death"];
 const DIRECTIONAL = ["idle", "walk", "run"];          // 只有這三個有背面、側面（與 api/src/index.js 一致）
@@ -72,7 +73,7 @@ async function jobSummary(id) {
   };
 }
 
-const server = new McpServer({ name: "moveborn", version: "0.1.0" });
+const server = new McpServer({ name: "moveborn", version: "0.2.0" });
 
 server.registerTool("get_account", {
   title: "Moveborn account",
@@ -174,14 +175,18 @@ server.registerTool("download_results", {
   description: [
     "Save a finished job's outputs into a folder in the project: <dest_dir>/<action>/frames/frame_000.png…, sheet.webp (all frames in one strip), meta.json (fps, frame size, ground line), preview.gif,",
     "plus a lighter 12 fps set under <action>/12fps/. Use only_12fps to skip the full-rate frames.",
+    "If the folder is inside a Godot project it also writes a SpriteFrames .tres (all actions in the folder) and a small script that keeps the feet on the node origin;",
+    "inside a Unity project it installs an editor importer that makes the frames Sprites with the pivot on the feet and builds .anim clips plus an Animator Controller.",
+    "Tip: download every action of one character into the same folder (e.g. assets/sprites/hero) so they end up in one SpriteFrames / controller.",
     "Trial accounts can only get the watermarked preview.",
   ].join(" "),
   inputSchema: {
     job_id: z.string().regex(/^[0-9a-f]{32}$/),
     dest_dir: z.string().describe("Folder to write into, e.g. assets/sprites/hero"),
     only_12fps: z.boolean().default(false),
+    engine_files: z.boolean().default(true).describe("Write Godot/Unity files when the folder is inside such a project."),
   },
-}, wrap(async ({ job_id, dest_dir, only_12fps }) => {
+}, wrap(async ({ job_id, dest_dir, only_12fps, engine_files }) => {
   const j = await call("GET", `/jobs/${job_id}`);
   if (ACTIVE.has(j.status)) throw new Error(`Job is still ${j.status}; call wait_for_job first.`);
   const root = resolve(dest_dir);
@@ -218,7 +223,8 @@ server.registerTool("download_results", {
     return { action: a, folder: join(root, a), loop: LOOPING.has(base),
              sheet: join(root, a, "sheet.webp"), meta: join(root, a, "meta.json") };
   });
-  return ok({ saved: n, dir: root, actions: hint,
+  const engine = engine_files ? await writeEngineFiles(root).catch((e) => ({ error: String(e.message || e) })) : null;
+  return ok({ saved: n, dir: root, actions: hint, engine,
               engine_tip: "meta.json has fps, frame_w/frame_h and ground_y (feet line in px from the top of each frame). Use ground_y as the sprite origin so every action stands on the same line. Side-facing sprites face right; flip horizontally for left." });
 }));
 
