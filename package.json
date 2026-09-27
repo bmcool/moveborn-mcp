@@ -9,6 +9,7 @@
   "files": [
     "index.js",
     "engines.js",
+    "skills",
     "README.md",
     "LICENSE"
   ],
